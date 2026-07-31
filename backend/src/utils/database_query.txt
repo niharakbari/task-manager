@@ -1,0 +1,147 @@
+USE task_manager;
+
+CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    username VARCHAR(30) NOT NULL UNIQUE,
+
+    first_name VARCHAR(50) NOT NULL,
+
+    last_name VARCHAR(50),
+
+    email VARCHAR(255) NOT NULL UNIQUE,
+
+    mobile_number VARCHAR(15) UNIQUE,
+
+    date_of_birth DATE,
+
+    password_hash VARCHAR(255) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE tasks (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    user_id BIGINT UNSIGNED NOT NULL,
+
+    title VARCHAR(150) NOT NULL,
+
+    description TEXT,
+
+    status ENUM(
+        'pending',
+        'completed',
+        'overdue',
+        'discarded'
+    ) DEFAULT 'pending',
+
+    priority ENUM(
+        'low',
+        'medium',
+        'high'
+    ) DEFAULT 'medium',
+
+    due_at DATETIME,
+
+    is_recurring BOOLEAN DEFAULT FALSE,
+
+    completed_at DATETIME,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_task_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+
+CREATE TABLE recurrence_rules (
+
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    task_id BIGINT UNSIGNED NOT NULL UNIQUE,
+
+    frequency ENUM(
+        'daily',
+        'weekly',
+        'monthly',
+        'yearly'
+    ) NOT NULL,
+
+    recurrence_interval INT NOT NULL DEFAULT 1,
+
+    day_of_week TINYINT,
+
+    day_of_month TINYINT,
+
+    end_date DATE,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_recurrence_task
+        FOREIGN KEY (task_id)
+        REFERENCES tasks(id)
+        ON DELETE CASCADE
+);
+
+
+CREATE TABLE task_snoozes (
+
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    task_id BIGINT UNSIGNED NOT NULL,
+
+    next_reminder_at DATETIME NOT NULL,
+
+    interval_minutes INT NOT NULL,
+
+    remaining_snoozes INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_snooze_task
+        FOREIGN KEY (task_id)
+        REFERENCES tasks(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_user_email
+ON users(email);
+
+CREATE INDEX idx_username
+ON users(username);
+
+CREATE INDEX idx_task_user
+ON tasks(user_id);
+
+CREATE INDEX idx_task_status
+ON tasks(status);
+
+CREATE INDEX idx_task_priority
+ON tasks(priority);
+
+CREATE INDEX idx_due_at
+ON tasks(due_at);
+
+CREATE INDEX idx_task_title
+ON tasks(title);
+
+ALTER TABLE tasks
+DROP COLUMN is_recurring;
