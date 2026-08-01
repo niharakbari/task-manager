@@ -1,10 +1,12 @@
 const express = require('express');
 
+const db = require("./configurations/database")
 
 const healthRoute = require('./routes/healthRoute');
 
 
 const cookie_parser = require('cookie-parser');
+
 
 const app = express();
 
