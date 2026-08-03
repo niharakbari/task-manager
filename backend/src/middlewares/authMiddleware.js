@@ -2,7 +2,7 @@ const jwt = require("../utils/jwt");
 const userModel = require("../models/userModel");
 const AppError = require("../utils/AppError");
 
-const protect = (req, res, next) => {
+const verifyToken = (req, res, next) => {
 
     const authHeader = req.headers.authorization;
 
@@ -39,5 +39,6 @@ const protect = (req, res, next) => {
 };
 
 module.exports = {
-    protect
+    protect: verifyToken,
+    verifyToken
 };

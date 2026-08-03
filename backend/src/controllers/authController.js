@@ -1,51 +1,93 @@
-const bcrypt = require("bcrypt");
+const authService = require("../services/authService");
 
-const userModel = require("../models/userModel");
+const cookieOptions = require("../utils/cookieOptions");
+
 const logger = require("../configurations/logger");
+
+const asyncHandler = require("../utils/asyncHandler");
+
 const AppError = require("../utils/AppError");
 
-const registerUser = async (req, res, next) => {
+const registerUser = asyncHandler(async (req, res) => {
 
-    try {
+    await authService.registerUser(req.body);
 
-        const user = req.body;
+    logger.info(`User Registered : ${req.body.email}`);
 
-        const hashedPassword = await bcrypt.hash(user.password, 10);
+    return res.status(201).json({
+        success: true,
+        message: "User registered successfully"
+    });
 
-        user.password_hash = hashedPassword;
+});
 
-        delete user.password;
+const loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
 
-        userModel.register(user, (err, result) => {
+    const result = await authService.loginUser(email, password);
 
-            if (err) {
+    res.cookie("refreshToken", result.refreshToken, cookieOptions);
 
-                logger.warn(`User Registration Failed : ${err.message}`);
+    logger.info(`User Logged In : ${email}`);
 
-                return next(
-                    new AppError("User already registered", 409)
-                );
+    return res.status(200).json({
+        success: true,
+        message: "Login successful",
+        accessToken: result.accessToken,
+        user: result.user
+    });
 
-            }
+});
 
-            logger.info(`User Registered : ${user.email}`);
+const refreshToken = asyncHandler(async (req, res) => {
 
-            res.status(201).json({
-                success: true,
-                message: "User registered successfully"
-            });
+    const token = req.cookies.refreshToken;
 
-        });
+    if (!token)
+        throw new AppError("Refresh token not found", 401);
 
+    const result = await authService.refreshUserToken(token);
+
+    res.cookie("refreshToken", result.refreshToken, cookieOptions);
+
+    logger.info("Token Refreshed");
+
+    return res.status(200).json({
+        success: true,
+        accessToken: result.accessToken
+    });
+
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+
+    const token = req.cookies.refreshToken;
+
+    if (!req.cookies.refreshToken) {
+        return res.status(401).json({
+            success: false,
+            message: "You need to login first"
+        })
     }
-    catch (err) {
 
-        next(err);
+    if (token)
+        await authService.logoutUser(token);
 
-    }
+    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("accessToken", cookieOptions);
 
-};
+    logger.info("User Logged Out");
+
+    return res.status(200).json({
+        success: true,
+        message: "Logout successful"
+    });
+
+});
 
 module.exports = {
-    registerUser
+    registerUser,
+    loginUser,
+    refreshToken,
+    logoutUser
 };

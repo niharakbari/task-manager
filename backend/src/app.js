@@ -1,21 +1,27 @@
-const express = require('express');
+const express = require("express");
 
-const db = require("./configurations/database")
+const cookieParser = require("cookie-parser");
 
-const healthRoute = require('./routes/healthRoute');
+const authRoutes = require("./routes/authRoutes");
+const usersRoute = require("./routes/usersRoutes");
+const healthRoute = require("./routes/healthRoute");
 
-
-const cookie_parser = require('cookie-parser');
-
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 const app = express();
 
-app.use(cookie_parser());
+app.use(cookieParser());
+
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/auth", authRoutes);
+
+app.use("/users", usersRoute);
 
 app.use("/health", healthRoute);
 
-
+app.use(globalErrorHandler);
 
 module.exports = app;

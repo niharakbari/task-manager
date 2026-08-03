@@ -25,7 +25,7 @@ const logger = winston.createLogger({
     new winston.transports.Console(),
 
     new winston.transports.File({
-      filename: path.join(__dirname, "../logs/error.log"),
+      filename: path.join(__dirname, "../../logs/error.log"),
       level: "error",
     }),
 
