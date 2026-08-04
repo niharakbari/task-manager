@@ -13,9 +13,9 @@ const protect = (req, res, next) => {
 
     try {
 
-        const decoded = jwt.verifyAccessToken(token);
+        const user = jwt.verifyAccessToken(token);
 
-        userModel.findById(decoded.id, (err, rows) => {
+        userModel.findById(user.id, (err, rows) => {
 
             if (err)
                 return next(err);

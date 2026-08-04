@@ -2,7 +2,7 @@ const jwt = require("../utils/jwt");
 const userModel = require("../models/userModel");
 const AppError = require("../utils/AppError");
 
-const verifyToken = (req, res, next) => {
+const protect = (req, res, next) => {
 
     const authHeader = req.headers.authorization;
 
@@ -29,8 +29,7 @@ const verifyToken = (req, res, next) => {
 
         });
 
-    }
-    catch {
+    } catch {
 
         next(new AppError("Invalid or expired token", 401));
 
@@ -39,6 +38,5 @@ const verifyToken = (req, res, next) => {
 };
 
 module.exports = {
-    protect: verifyToken,
-    verifyToken
+    protect
 };

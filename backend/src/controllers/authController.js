@@ -22,6 +22,13 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+
+    if (req.cookies.accessToken)
+        return res.status(200).json({
+            success  : "false",
+            message : "User already logged in"
+        })
+
     const { email, password } = req.body;
 
     const result = await authService.loginUser(email, password);

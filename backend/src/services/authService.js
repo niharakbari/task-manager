@@ -12,13 +12,14 @@ const AppError = require("../utils/AppError");
 
 const logger = require("../configurations/logger");
 
+const dateUtils = require("../utils/dateUtils");
+
 
 //        ----------register user--------------
 
 const registerUser = async (user) => {
 
-    const [day, month, year] = user.date_of_birth.split("/");
-    user.date_of_birth = `${year}-${month}-${day}`;
+    user.date_of_birth = dateUtils.formatDateForDatabase(user.date_of_birth);
 
     const hashedPassword = await bcrypt.hash(
         user.password,
@@ -166,11 +167,11 @@ const refreshUserToken = async (refreshToken) => {
             );
         };
 
-        let decoded;
+        let user;
 
         try {
 
-            decoded = jwt.verifyRefreshToken(refreshToken);
+            user = jwt.verifyRefreshToken(refreshToken);
 
         }
         catch (error) {
@@ -194,13 +195,13 @@ const refreshUserToken = async (refreshToken) => {
 
                 const storedRefreshToken = rows[0];
 
-                if (Number(storedRefreshToken.user_id) !== Number(decoded.id))
+                if (Number(storedRefreshToken.user_id) !== Number(user.id))
                     return failRefresh("Invalid refresh token");
 
                 if (new Date(storedRefreshToken.expires_at).getTime() <= Date.now())
                     return deleteExpiredToken("Refresh token expired");
 
-                userModel.findById(decoded.id, (userErr, users) => {
+                userModel.findById(user.id, (userErr, users) => {
 
                     if (userErr)
                         return reject(userErr);

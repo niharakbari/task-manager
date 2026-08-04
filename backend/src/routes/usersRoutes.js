@@ -4,23 +4,23 @@ const router = express.Router();
 
 const userController = require("../controllers/userController");
 
-const { verifyToken } = require("../middlewares/authMiddleware");
+const { protect } = require("../middlewares/authMiddleware");
 
 router.get(
     "/",
-    verifyToken,
+    protect,
     userController.getUsers
 );
 
 router.get(
     "/me",
-    verifyToken,
+    protect,
     userController.getMe
 );
 
 router.delete(
     "/me",
-    verifyToken,
+    protect,
     userController.deleteMe
 );
 
