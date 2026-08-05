@@ -94,7 +94,7 @@ const loginUser = async (email, password) => {
             }
 
             const accessToken = jwt.generateAccessToken(user);
-
+           
             const refreshToken = jwt.generateRefreshToken(user);
 
             const expiresAt = new Date(

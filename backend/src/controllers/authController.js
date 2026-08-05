@@ -32,6 +32,9 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const result = await authService.loginUser(email, password);
+     console.log("Generated Access Token:");
+                console.log(result.accessToken);    
+    
 
     res.cookie("refreshToken", result.refreshToken, cookieOptions);
 

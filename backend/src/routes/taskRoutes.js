@@ -11,5 +11,32 @@ router.post("/", protect, taskValidation, validationMiddleware, taskController.c
 
 router.get("/", protect, taskController.getAllTasks);
 
+router.get("/:id", protect, taskController.getTaskById);
+
+router.put(
+    "/:id",
+    protect,
+    taskValidation,
+    validationMiddleware,
+    taskController.updateTask
+);
+
+router.patch(
+    "/:id/status",
+    protect,
+    taskController.updateTaskStatus
+);
+
+router.delete(
+    "/:id",
+    protect,
+    taskController.deleteTask
+);
+
+router.post(
+    "/bulk-delete",
+    protect,
+    taskController.bulkDeleteTasks
+);
 
 module.exports = router;

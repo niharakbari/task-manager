@@ -1,6 +1,7 @@
 const jwt = require("../utils/jwt");
 const userModel = require("../models/userModel");
 const AppError = require("../utils/AppError");
+const { decode } = require("jsonwebtoken");
 
 const protect = (req, res, next) => {
 
@@ -12,8 +13,13 @@ const protect = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     try {
+        console.log(req.headers.authorization);
+
+        console.log(token);
 
         const decoded = jwt.verifyAccessToken(token);
+
+        console.log(decoded);
 
         userModel.findById(decoded.id, (err, rows) => {
 
@@ -29,9 +35,10 @@ const protect = (req, res, next) => {
 
         });
 
-    } catch {
+    } catch(err) {
 
-        next(new AppError("Invalid or expired token", 401));
+          console.log(err);
+          next(new AppError("Invalid or expired token", 401));
 
     }
 
